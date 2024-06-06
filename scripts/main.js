@@ -83,3 +83,34 @@ btnLogin.onclick = () => {
   else
       logout();
 }
+
+//When the user clicks on Start Button selection
+btnStart.onclick = () => {
+    if (btnStart.textContent == "Start the Game") {
+      if( currentUser.textContent == "Please login."){
+        alert("You need to be logged in for playing.");
+      }
+      else{
+        currentPlayerTurn = parseInt(Math.random() * 4);
+        countMonsters();
+        updatePlayerInfo();
+        btnStart.textContent = "End of the Game";
+        btnEndTurn.style.visibility = "visible";
+      }
+
+    }else {
+      alert("You are logging out.");
+      location.reload();
+    }
+}
+
+//When the user clicks on End Turn Button selection
+btnEndTurn.onclick = () => {
+  let randomNumber;
+  do {
+    randomNumber = parseInt(Math.random() * 4);
+  } while (randomNumber == currentPlayerTurn || players[numToText(randomNumber)].monsters == 0);
+
+  currentPlayerTurn = randomNumber;
+  updateTurn();
+}
