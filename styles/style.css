@@ -1,137 +1,224 @@
+/* Importing Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+
 body {
-    background-color: #f9f9e3;
+    width: 80%;
+    margin: 0 auto;
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+    padding: 20px;
+    border: 5px solid #8b0000;
+    font-family: 'Roboto', sans-serif;
+    text-shadow: 2px 2px 4px #000000; /* Adding text shadow to all text */
+}
+
+
+
+h1 {
     margin: 0;
-    padding: 20px;
-    border: 5px solid #a52a2a;
-    font-family: "Roboto", sans-serif;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .container {
-    display: flex;
-    width: 100%;
-    max-width: 1200px;
-  }
-  
-  .left-column {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .right-column {
-    flex: 1;
-    padding: 20px;
-  }
-  
-  .chessBoard {
-    width: 80vw;
-    height: 80vw;
-    display: flex;
-    flex-wrap: wrap;
-  }
-  
-  .square, .null {
-    width: 8.3333%;
-    height: 8.3333%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-  }
-  
-  .white {
-    background-color: #f0d9b5;
-  }
-  
-  .black {
-    background-color: #b58863;
-  }
-  
-  .whiteRed {
-    background-color: #f0b5b5;
-  }
-  
-  .blackRed {
-    background-color: #b56363;
-  }
-  
-  .whitePink {
-    background-color: #ffc0cb;
-  }
-  
-  .blackPink {
-    background-color: #ff69b4;
-  }
-  
-  .whiteOrange {
-    background-color: #ffd700;
-  }
-  
-  .blackOrange {
-    background-color: #ff8c00;
-  }
-  
-  .whitePurple {
-    background-color: #dda0dd;
-  }
-  
-  .blackPurple {
-    background-color: #800080;
-  }
-  
-  .null {
-    background-color: #f9f9e3;
-  }
-  
-  .coordinate {
-    height: auto;
-    display: flex;
-    bottom: 4%;
-    left: 4%;
-    position: absolute;
-    font-size: 12px;
-    font-weight: bold;
-    font-family: "Verdana", Geneva, Tahoma, sans-serif;
-  }
-  
-  .rank {
-    top: 4%;
-    right: 4%;
-    left: auto;
-  }
-  
-  .whiteText {
-    color: #f0d9b5;
-  }
-  
-  .blackText {
-    color: #b58863;
-  }
-  
-  .piece {
-    width: 100%;
-    z-index: 1;
+    font-size: 32px;
+    padding: 20px 0;
+    color: #e62da8;
+    font-family: 'Creepster', cursive;
+    text-shadow: 3px 3px 3px rgb(248, 131, 217);
+}
+
+h2 {
+    color: #767070;
+    font-family: 'Creepster', cursive;
+    text-shadow: 2px 2px 4px #000000; /* Ensuring consistent text shadow */
+}
+
+h3 {
+  color: #767070;
+  font-size: 25px;
+  font-family: 'Creepster', cursive;
+  text-shadow: 2px 2px 4px #000000; /* Ensuring consistent text shadow */
+}
+
+h4 {
+  color:  #767070;
+  font-size: 25px;
+  font-family: 'Creepster', cursive;
+  text-shadow: 2px 2px 4px #000000; /* Ensuring consistent text shadow */
+}
+
+h5 {
+  color: #767070;
+  font-size: 25px;
+  padding: 0px;
+  font-family: 'Creepster', cursive;
+  text-shadow: 2px 2px 4px #000000; /* Ensuring consistent text shadow */
+}
+
+
+.player-info {
+  margin: 10px 0; /* Adjust this value to change the spacing */
+  text-align: center;
+  text-shadow: 2px 2px 4px #000000;
+}
+
+a#userId {
+    color: #e62da8;
+    text-shadow: 2px 2px 4px #000000;
+}
+
+button {
+    background-color: #8b0000;
+    color: #f1f1f1;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    text-shadow: 1px 1px 2px #000000;
+}
+
+button:hover {
+    background-color: #b22222;
+    box-shadow: 0 0 10px #b22222;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    text-shadow: 1px 1px 2px #000000;
+}
+
+li {
+    margin: 10px 0;
+    text-shadow: 1px 1px 2px #000000;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(183, 176, 176, 0.5);
+}
+
+.left-column {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.right-column {
+  flex: 1;
+  padding: 20px;
+}
+
+.chessBoard {
+  width: 80vw;
+  height: 80vw;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.square, .null {
+  width: 8.3333%;
+  height: 8.3333%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.white {
+  background-color: #f0d9b5;
+}
+
+.black {
+  background-color: #b58863;
+}
+
+.whiteRed {
+  background-color: #f0b5b5;
+}
+
+.blackRed {
+  background-color: #b56363;
+}
+
+.whitePink {
+  background-color: #ffc0cb;
+}
+
+.blackPink {
+  background-color: #ff69b4;
+}
+
+.whiteOrange {
+  background-color: #ffd700;
+}
+
+.blackOrange {
+  background-color: #ff8c00;
+}
+
+.whitePurple {
+  background-color: #dda0dd;
+}
+
+.blackPurple {
+  background-color: #800080;
+}
+
+.null {
+  background-color: #f9f9e3;
+}
+
+.coordinate {
+  height: auto;
+  display: flex;
+  bottom: 4%;
+  left: 4%;
+  position: absolute;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: "Verdana", Geneva, Tahoma, sans-serif;
+}
+
+.rank {
+  top: 4%;
+  right: 4%;
+  left: auto;
+}
+
+.whiteText {
+  color: #f0d9b5;
+}
+
+.blackText {
+  color: #b58863;
+}
+
+.piece {
+  width: 100%;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.piece img {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+}
+
+@media (min-width: 600px) {
+  .chessBoard {
+    width: 600px;
+    height: 600px;
   }
-  
-  .piece img {
-    max-width: 100%;
-    width: 100%;
-    height: auto;
+}
+
+@media (max-width: 600px) {
+  .coordinate {
+    font-size: 8px;
   }
-  
-  @media (min-width: 600px) {
-    .chessBoard {
-      width: 600px;
-      height: 600px;
-    }
-  }
-  
-  @media (max-width: 600px) {
-    .coordinate {
-      font-size: 8px;
-    }
-  }
-  
+}
