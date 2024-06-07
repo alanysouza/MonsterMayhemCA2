@@ -114,3 +114,80 @@ btnEndTurn.onclick = () => {
   currentPlayerTurn = randomNumber;
   updateTurn();
 }
+//Changing player function
+function updateTurn() {
+    turnIndicator.textContent = `${numToText(currentPlayerTurn)}'s turn`;
+}
+
+//Mosnter amount displayed
+function countMonsters() {
+    const gridsquares = document.getElementsByClassName("square");
+
+    for (let i = 0; i < gridsquares.length; i++) {
+      let square = gridsquares[i];
+
+      if (square.querySelector(".piece")) {
+        let color = square.querySelector(".piece").getAttribute("color");
+        players[color]["monsters"]++;
+        if      ((square.querySelector(".piece").getAttribute("class")).includes("werewolf")) players[color]["werewolf"]++;
+        else if ((square.querySelector(".piece").getAttribute("class")).includes("vampire")) players[color]["vampire"]++;
+        else if ((square.querySelector(".piece").getAttribute("class")).includes("ghost")) players[color]["ghost"]++;
+      }
+    }
+}
+
+//Amount of players and monsters left
+function updatePlayerInfo(){
+
+    if (players.purple.monsters)
+        purplePlayerInfo.textContent = `Werewolves: ${players.purple.werewolf},
+      Vampires: ${players.purple.vampire}, Ghosts: ${players.purple.ghost}`;
+    else purplePlayerInfo.textContent = "Game over";
+
+    if (players.red.monsters)
+        redPlayerInfo.textContent = `Werewolves: ${players.red.werewolf},
+      Vampires: ${players.red.vampire}, Ghosts: ${players.red.ghost}`;
+    else redPlayerInfo.textContent = "Game over";
+
+    if (players.pink.monsters)
+        pinkPlayerInfo.textContent = `Werewolves: ${players.pink.werewolf},
+      Vampires: ${players.pink.vampire}, Ghosts: ${players.pink.ghost}`;
+    else pinkPlayerInfo.textContent = "Game over";
+
+    if (players.orange.monsters)
+        orangePlayerInfo.textContent = `Werewolves: ${players.orange.werewolf},
+      Vampires: ${players.orange.vampire}, Ghosts: ${players.orange.ghost}`;
+    else orangePlayerInfo.textContent = "Game over";
+
+    //In case of victory localStorage get updated
+    if(players.purple.monsters > 0 && players.red.monsters == 0 &&
+      players.pink.monsters == 0 && players.orange.monsters == 0) {
+        alert("Red player is the winer!");
+        userLocalStorage.purple++;
+        localStorage.setItem(user, JSON.stringify(userLocalStorage));
+        logout();
+    }
+    else if(players.purple.monsters == 0 && players.red.monsters > 0 &&
+      players.pink.monsters == 0 && players.orange.monsters == 0) {
+        alert("Yellow player is the winer!");
+        userLocalStorage.red++;
+        localStorage.setItem(user, JSON.stringify(userLocalStorage));
+        logout();
+    }
+    else if(players.purple.monsters == 0 && players.red.monsters == 0 &&
+      players.pink.monsters > 0 && players.orange.monsters == 0) {
+        alert("Green player is the winer!");
+        userLocalStorage.pink++;
+        localStorage.setItem(user, JSON.stringify(userLocalStorage));
+        logout();
+    }
+    else if(players.purple.monsters == 0 && players.red.monsters == 0 &&
+      players.pink.monsters == 0 && players.orange.monsters > 0) {
+        alert("Blue player is the winer!");
+        userLocalStorage.orange++;
+        localStorage.setItem(user, JSON.stringify(userLocalStorage));
+        logout();
+    }
+
+    else updateTurn();
+}
