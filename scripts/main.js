@@ -1,19 +1,4 @@
 
-//HTML page references
-const gridsquares = document.getElementsByClassName("square");
-const pieces = document.getElementsByClassName("piece");
-const piecesImages = document.getElementsByTagName("img");
-let btnLogin = document.getElementById("btn-login");
-let btnStart = document.getElementById("btn-start");
-let btnEndTurn = document.getElementById("btn-turn");
-let turn = document.getElementById("turn");
-let purplePlayerInfo = document.getElementById("purplePlayerInfo");
-let redPlayerInfo = document.getElementById("redPlayerInfo");
-let pinkPlayerInfo = document.getElementById("pinkPlayerInfo");
-let orangePlayerInfo = document.getElementById("orangePlayerInfo");
-let currentUser = document.getElementById("userId");
-let userInfo = document.getElementById("userInfo");
-
 //Controls the pieces' positions
 let gridSquareArray = [];
 
@@ -28,6 +13,23 @@ const players = {
     pink: {monsters: 0, werewolf: 0, vampire: 0, ghost: 0},
     orange: {monsters: 0, werewolf: 0, vampire: 0, ghost: 0},
 }
+
+//HTML page references
+const gridsquares
+ = document.getElementsByClassName("square");
+const pieces = document.getElementsByClassName("piece");
+const piecesImages = document.getElementsByTagName("img");
+let btnLogin = document.getElementById("btn-login");
+let btnStart = document.getElementById("btn-start");
+let btnEndTurn = document.getElementById("btn-turn");
+let turn = document.getElementById("turn");
+let purplePlayerInfo = document.getElementById("purplePlayerInfo");
+let redPlayerInfo = document.getElementById("redPlayerInfo");
+let pinkPlayerInfo = document.getElementById("pinkPlayerInfo");
+let orangePlayerInfo = document.getElementById("orangePlayerInfo");
+let currentUser
+ = document.getElementById("userId");
+let userInfo = document.getElementById("userInfo");
 
 //Login info storage
 let usersLS
@@ -57,6 +59,7 @@ function login() {
         if (!localStorage.getItem(user)){
           localStorage.setItem(user, JSON.stringify(usersLS
 ));
+          // alert("if");
         }
 
         usersLS
@@ -135,7 +138,7 @@ btnEndTurn.onclick = () => {
   do {
     rand = parseInt(Math.random() * 4);
   } while (rand == currentPlayerTurn
- || players[intToText(rand)].monsters == 0);
+ || players[numToText(rand)].monsters == 0);
 
   currentPlayerTurn
  = rand;
@@ -144,7 +147,7 @@ btnEndTurn.onclick = () => {
 
 //Changing player function
 function updateTurn() {
-    turn.textContent = `${intToText(currentPlayerTurn
+    turn.textContent = `${numToText(currentPlayerTurn
 )}'s turn`;
 }
 
@@ -267,46 +270,55 @@ function fillGridSquaresArray() {
 }
 
 //
-function updateGridSquaresArray (currentSquareId, targetCellId, gridSquareArray, survivor) {
+function updateGridSquaresArray (currentSquareId, destinationSquareId, gridSquareArray, whoLived) {
+    /*
+    whoLived == 0: strikerPiece
+    whoLived == 1: attackedPiece
+    whoLived == -1: none
+    */
+
     let currentSquare = gridSquareArray.find(
         (element) => element.squareId === currentSquareId
     );
-    let targetCellElement = gridSquareArray.find(
-        (element) => element.squareId === targetCellId
+    let destinationSquareElement = gridSquareArray.find(
+        (element) => element.squareId === destinationSquareId
     );
     let pieceColor = currentSquare.pieceColor;
     let pieceType = currentSquare.pieceType;
     let pieceId= currentSquare.pieceId;
 
-    if(survivor == 0){
-      targetCellElement.pieceColor = pieceColor;
-      targetCellElement.pieceType = pieceType;
-      targetCellElement.pieceId = pieceId;
+    //se o wholived = 0 o atacante vai ocupar o quadrado do atacado.
+    //se for -1, ambos morrem e o quadrado de destino fica vazio
+    //se for -1 significa que o atacado é quem sobrevive, então não muda nada
+    if(whoLived == 0){
+      destinationSquareElement.pieceColor = pieceColor;
+      destinationSquareElement.pieceType = pieceType;
+      destinationSquareElement.pieceId = pieceId;
     }
-    else if(survivor == -1){
-      targetCellElement.pieceColor = "blank";
-      targetCellElement.pieceType = "blank";
-      targetCellElement.pieceId = "blank";
+    else if(whoLived == -1){
+      destinationSquareElement.pieceColor = "blank";
+      destinationSquareElement.pieceType = "blank";
+      destinationSquareElement.pieceId = "blank";
     }
 
-    // The origin square always becomes empty after a move.
+    //o quadrado de origem sempre vai ficar vazio depois de um movimento
     currentSquare.pieceColor = "blank";
     currentSquare.pieceType = "blank";
     currentSquare.pieceId = "blank";
 }
 
-setupGridSquares();
+setupBoardSquares();
 setupPieces();
 fillGridSquaresArray();
 
-//Allows squares to receive pieces.
-function setupGridSquares() {
+//define que os quadrados podem receber peças
+function setupBoardSquares() {
   for (let i = 0; i < gridsquares
 .length; i++) {
     gridsquares
 [i].addEventListener("dragover", allowDrop);
     gridsquares
-[i].addEventListener("preventDefaultOnDrop", preventDefaultOnDrop);
+[i].addEventListener("drop", drop);
     let row = 11 - Math.floor(i / 12);
     let column = String.fromCharCode(96 + (i % 12));
     let square = gridsquares
@@ -315,7 +327,7 @@ function setupGridSquares() {
   }
 }
 
-// Allows pieces (monsters) to be moved.
+//define que as peças (mosntros) podem ser movimentados
 function setupPieces() {
   for (let i = 0; i < pieces.length; i++) {
     pieces[i].addEventListener("dragstart", drag);
@@ -341,20 +353,20 @@ function drag(ev) {
   const pieceId = piece.id;
 
   // Checks if the piece is of the current player's color.
-  if (intToText(currentPlayerTurn
+  if (numToText(currentPlayerTurn
 ) == pieceColor) {
     const startingSquareId = piece.parentNode.id;
     ev.dataTransfer.setData("text", pieceId + "|" + startingSquareId);
     const pieceObject ={pieceColor:pieceColor, pieceType:pieceType, pieceId:pieceId}
 
-    let legalMoves = getLegalMoves(
+    let legalSquares = getPossibleMoves(
       startingSquareId,
       pieceObject,
       gridSquareArray
     );
 
-    let legalMovesJson = JSON.stringify(legalMoves);
-    ev.dataTransfer.setData("application/json", legalMovesJson);
+    let legalSquaresJson = JSON.stringify(legalSquares);
+    ev.dataTransfer.setData("application/json", legalSquaresJson);
   }
 
   //Game must be started for user to be allowed to play
@@ -363,50 +375,52 @@ function drag(ev) {
 
   //Selected piece is another colour
   else
-    alert(`It's ${intToText(currentPlayerTurn
+    alert(`It's ${numToText(currentPlayerTurn
 )}'s turn!`);
 
 }
 
 //function to handle the move of a piece to a cell
-function preventDefaultOnDrop(ev) {
+function drop(ev) {
   ev.preventDefault();
 
+  //Extrai as informações da peça movimentada e de onde ela veio
   let data = ev.dataTransfer.getData("text");
+
   let [pieceId, startingSquareId] = data.split("|");
-  let legalMovesJson = ev.dataTransfer.getData("application/json");
-  let legalMoves = JSON.parse(legalMovesJson);
+  let legalSquaresJson = ev.dataTransfer.getData("application/json");
+  let legalSquares = JSON.parse(legalSquaresJson);
 
   const piece = document.getElementById(pieceId);
   const pieceColor = piece.getAttribute("color");
   const pieceType = piece.classList[1];
 
-  const targetCell = ev.currentTarget;
-  let   targetCellId = targetCell.id;
+  const destinationSquare = ev.currentTarget;
+  let   destinationSquareId = destinationSquare.id;
 
-  // Check if there is a piece in the target cell
-  let squareContent = getPieceAtSquare(targetCellId,gridSquareArray);
+  //Verifica se no quadrado de destino há uma peça
+  let squareContent = getPieceAtSquare(destinationSquareId,gridSquareArray);
 
-  //Check if the movement is allowed
-  if(!legalMoves.includes(targetCellId)) {
-    alert(`Invalid move. \nValid moves for this monster: ${legalMoves}`);
+  //Verifica se o movimento realizado está de acordo com as regras
+  if(!legalSquares.includes(destinationSquareId)) {
+    alert(`Invalid move. \nValid moves for this monster: ${legalSquares}`);
     return;
   }
 
- //Place the piece in the target cell
-  targetCell.appendChild(piece);
+  //A peça é inserida no quadrado de destino para então decidir sobre o combate
+  destinationSquare.appendChild(piece);
 
-  let children = targetCell.children;
-  let survivor = 0;
+  let children = destinationSquare.children;
+  let whoLived = 0;
 
   if (squareContent.pieceType != "blank") {
     if(squareContent.pieceType == pieceType) {
       alert(`${squareContent.pieceType} x ${pieceType}: both dead!`);
 
-      //Remove pieces from the cells
+      //Remover as peças do quadrado
       for (let i = 0; i < children.length; i++) {
         if (!children[i].classList.contains('coordinate')) {
-          targetCell.removeChild(children[i--]);
+          destinationSquare.removeChild(children[i--]);
         }
       }
 
@@ -415,24 +429,24 @@ function preventDefaultOnDrop(ev) {
       players[pieceColor]["monsters"]--;
       players[pieceColor][pieceType]--;
 
-      survivor = -1;
+      whoLived = -1;
     }
 
     //Different monsters
     else {
 
-      targetCell.appendChild(piece);
-      let children = targetCell.children;
+      destinationSquare.appendChild(piece);
+      let children = destinationSquare.children;
 
-      //Check the rules to see who survives 
+      //Verifica a regra de combate para ver quem sobrevive
       if((squareContent.pieceType == "werewolf" && pieceType == "vampire") ||
          (squareContent.pieceType == "vampire" && pieceType == "ghost") ||
          (squareContent.pieceType == "ghost" && pieceType == "werewolf")){
 
         alert(`${pieceType} x ${squareContent.pieceType}: ${squareContent.pieceType} dead!`);
 
-        //Remove the loser from the cell
-        targetCell.removeChild(children[0]);
+        //Remove o perdedor do quadrado
+        destinationSquare.removeChild(children[0]);
 
         players[squareContent.pieceColor]["monsters"]--;
         players[squareContent.pieceColor][squareContent.pieceType]--;
@@ -440,67 +454,68 @@ function preventDefaultOnDrop(ev) {
       //O atacado ganhou
       else{
         alert(`${pieceType} x ${squareContent.pieceType}: ${pieceType} dead!`);
-        targetCell.removeChild(children[1]);
+        destinationSquare.removeChild(children[1]);
         players[pieceColor]["monsters"]--;
         players[pieceColor][pieceType]--;
-        survivor = 1;
+        whoLived = 1;
       }
     }
   }
 
   updateGridSquaresArray(
     startingSquareId,
-    targetCellId,
+    destinationSquareId,
     gridSquareArray,
-    survivor
+    whoLived
   );
 
-  //Update the information
+  //Atualiza as informações exibidas na página
   updatePlayerInfo();
   return;
 }
 
-//Check if the move selected is legal
-function getLegalMoves(startingSquareId, piece, gridSquareArray) {
+//Verificar as possibilidade de movimento da peça selecionada
+function getPossibleMoves(startingSquareId, piece, gridSquareArray) {
 
   let horiVert = getHoriVertMoves(startingSquareId, piece.pieceColor, gridSquareArray);
+
   let diagonal = getDiagonalMoves(startingSquareId, piece.pieceColor, gridSquareArray);
-  let legalMoves = [...horiVert, ...diagonal];
-  return legalMoves;
+  let legalSquares = [...horiVert, ...diagonal];
+  return legalSquares;
 }
 
-//Horizontal and vertical moves
+//Movimentos horizontais e verticais
 function getHoriVertMoves(startingSquareId, pieceColor, gridSquareArray) {
-  let vetMoveAllUp = moveEverthyingUp(
+  let vetMoveAllUp = moveAllUp(
     startingSquareId,
     pieceColor,
     gridSquareArray
   );
-  let vetMoveAllDown = moveEverthyingDown(
+  let vetMoveAllDown = moveAllDown(
     startingSquareId,
     pieceColor,
     gridSquareArray
   );
-  let vetMoveAllLeft = moveEverthyingLeft(
+  let vetMoveAllLeft = moveAllLeft(
     startingSquareId,
     pieceColor,
     gridSquareArray
   );
-  let vetMoveAllRight = moveEverthyingRigth(
+  let vetMoveAllRight = moveAllRight(
     startingSquareId,
     pieceColor,
     gridSquareArray
   );
-  let legalMoves = [
+  let legalSquares = [
     ...vetMoveAllUp,
     ...vetMoveAllDown,
     ...vetMoveAllLeft,
     ...vetMoveAllRight,
   ];
-  return legalMoves;
+  return legalSquares;
 }
 
-//check possibilities
+//Movimentos diagonais
 function getDiagonalMoves(startingSquareId, pieceColor, gridSquareArray) {
   let vetMoveToDirNE = moveToDirNE(
     startingSquareId,
@@ -522,23 +537,23 @@ function getDiagonalMoves(startingSquareId, pieceColor, gridSquareArray) {
     pieceColor,
     gridSquareArray
   );
-  let legalMoves = [
+  let legalSquares = [
     ...vetMoveToDirNE,
     ...vetMoveToDirNW,
     ...vetMoveToDirSE,
     ...vetMoveToDirSW,
   ];
-  return legalMoves;
+  return legalSquares;
 }
 
-//check possible moves 
-function moveEverthyingUp(startingSquareId, pieceColor, gridSquareArray) {
+//Verifica todas as possibilidades na vertical acima
+function moveAllUp(startingSquareId, pieceColor, gridSquareArray) {
   const file = startingSquareId.charAt(0);
   const rank = startingSquareId.substring(1);
 
   const rankNumber = parseInt(rank);
   let currentRank = rankNumber;
-  let legalMoves = [];
+  let legalSquares = [];
 
   while (currentRank < 10) {
     currentRank++;
@@ -548,22 +563,22 @@ function moveEverthyingUp(startingSquareId, pieceColor, gridSquareArray) {
     );
     let squareContent = currentSquare.pieceColor;
     if (squareContent != "blank" && squareContent == pieceColor)
-      return legalMoves;
-    legalMoves.push(currentSquareId);
+      return legalSquares;
+    legalSquares.push(currentSquareId);
     if (squareContent != "blank" && squareContent != pieceColor)
-      return legalMoves;
+      return legalSquares;
   }
 
-  return legalMoves;
+  return legalSquares;
 }
 
-//Check possibilities downward
-function moveEverthyingDown(startingSquareId, pieceColor, gridSquareArray) {
+//Verifica todas as possibilidades na vertical abaixo
+function moveAllDown(startingSquareId, pieceColor, gridSquareArray) {
   const file = startingSquareId.charAt(0);
   const rank = startingSquareId.substring(1);
   const rankNumber = parseInt(rank);
   let currentRank = rankNumber;
-  let legalMoves = [];
+  let legalSquares = [];
 
   while (currentRank > 1) {
     currentRank--;
@@ -573,23 +588,23 @@ function moveEverthyingDown(startingSquareId, pieceColor, gridSquareArray) {
     );
     let squareContent = currentSquare.pieceColor;
     if (squareContent != "blank" && squareContent == pieceColor)
-      return legalMoves;
-    legalMoves.push(currentSquareId);
+      return legalSquares;
+    legalSquares.push(currentSquareId);
     if (squareContent != "blank" && squareContent != pieceColor)
-      return legalMoves;
+      return legalSquares;
   }
 
-  return legalMoves;
+  return legalSquares;
 }
 
-//Check all possibilities left
-function moveEverthyingLeft(startingSquareId, pieceColor, gridSquareArray) {
+//Verifica todas as possibilidades na horizontal à esquerda
+function moveAllLeft(startingSquareId, pieceColor, gridSquareArray) {
   const file = startingSquareId.charAt(0);
   const rank = startingSquareId.substring(1);
   let currentFile = file;
-  let legalMoves = [];
+  let legalSquares = [];
 
-  if (rank == 0 || rank == 11 || currentFile == "`") return legalMoves;
+  if (rank == 0 || rank == 11 || currentFile == "`") return legalSquares;
   while (currentFile != "a") {
     currentFile = String.fromCharCode(currentFile.charCodeAt(0) - 1);
     let currentSquareId = currentFile + rank;
@@ -598,23 +613,23 @@ function moveEverthyingLeft(startingSquareId, pieceColor, gridSquareArray) {
     );
     let squareContent = currentSquare.pieceColor;
     if (squareContent != "blank" && squareContent == pieceColor)
-      return legalMoves;
-    legalMoves.push(currentSquareId);
+      return legalSquares;
+    legalSquares.push(currentSquareId);
     if (squareContent != "blank" && squareContent != pieceColor)
-      return legalMoves;
+      return legalSquares;
   }
 
-  return legalMoves;
+  return legalSquares;
 }
 
-//check possibilities rightward
-function moveEverthyingRigth(startingSquareId, pieceColor, gridSquareArray) {
+//Verifica todas as possibilidades na horizontal à direita
+function moveAllRight(startingSquareId, pieceColor, gridSquareArray) {
   const file = startingSquareId.charAt(0);
   const rank = startingSquareId.substring(1);
   let currentFile = file;
-  let legalMoves = [];
+  let legalSquares = [];
 
-  if (rank == 0 || rank == 11 || currentFile == "k") return legalMoves;
+  if (rank == 0 || rank == 11 || currentFile == "k") return legalSquares;
   while (currentFile != "j") {
     currentFile = String.fromCharCode(
       currentFile.charCodeAt(0) + 1
@@ -625,16 +640,16 @@ function moveEverthyingRigth(startingSquareId, pieceColor, gridSquareArray) {
     );
     let squareContent = currentSquare.pieceColor;
     if (squareContent != "blank" && squareContent == pieceColor)
-      return legalMoves;
-    legalMoves.push(currentSquareId);
+      return legalSquares;
+    legalSquares.push(currentSquareId);
     if (squareContent != "blank" && squareContent != pieceColor)
-      return legalMoves;
+      return legalSquares;
   }
 
-  return legalMoves;
+  return legalSquares;
 }
 
-//Check possibilities northwest
+//Verifica todas as possibilidades na diagonal superior esquerda
 function moveToDirNW(
   startingSquareId,
   pieceColor,
@@ -645,9 +660,9 @@ function moveToDirNW(
   const rankNumber = parseInt(rank);
   let currentFile = file;
   let currentRank = rankNumber;
-  let legalMoves = [];
+  let legalSquares = [];
 
-  if (file == "`" || rank == 11) return legalMoves;
+  if (file == "`" || rank == 11) return legalSquares;
 
   let moves = 2;
   while (!(currentFile == "a" || currentRank == 8 || moves == 0)) {
@@ -661,16 +676,16 @@ function moveToDirNW(
     );
     let squareContent = currentSquare.pieceColor;
     if (squareContent != "blank" && squareContent == pieceColor)
-      return legalMoves;
-    legalMoves.push(currentSquareId);
+      return legalSquares;
+    legalSquares.push(currentSquareId);
     if (squareContent != "blank" && squareContent != pieceColor)
-      return legalMoves;
+      return legalSquares;
     moves--;
   }
-  return legalMoves;
+  return legalSquares;
 }
 
-//Check possibilities northeast
+//Verifica todas as possibilidades na diagonal superior direita
 function moveToDirNE(
   startingSquareId,
   pieceColor,
@@ -681,9 +696,9 @@ function moveToDirNE(
   const rankNumber = parseInt(rank);
   let currentFile = file;
   let currentRank = rankNumber;
-  let legalMoves = [];
+  let legalSquares = [];
 
-  if (file == "k" || rank == 11) return legalMoves;
+  if (file == "k" || rank == 11) return legalSquares;
 
   let moves = 2;
   while (!(currentFile == "j" || currentRank == 10 || moves == 0)) {
@@ -697,25 +712,25 @@ function moveToDirNE(
     );
     let squareContent = currentSquare.pieceColor;
     if (squareContent != "blank" && squareContent == pieceColor)
-      return legalMoves;
-    legalMoves.push(currentSquareId);
+      return legalSquares;
+    legalSquares.push(currentSquareId);
     if (squareContent != "blank" && squareContent != pieceColor)
-      return legalMoves;
+      return legalSquares;
     moves--;
   }
-  return legalMoves;
+  return legalSquares;
 }
 
-//Check all possibilities southeast
+//Verifica todas as possibilidades na diagonal inferior esquerda
 function moveToDirSW(startingSquareId, pieceColor, gridSquareArray) {
   const file = startingSquareId.charAt(0);
   const rank = startingSquareId.substring(1);
   const rankNumber = parseInt(rank);
   let currentFile = file;
   let currentRank = rankNumber;
-  let legalMoves = [];
+  let legalSquares = [];
 
-  if (file == "`" || rank == 0) return legalMoves;
+  if (file == "`" || rank == 0) return legalSquares;
 
   let moves = 2;
   while (!(currentFile == "a" || currentRank == 1 || moves == 0)) {
@@ -729,25 +744,25 @@ function moveToDirSW(startingSquareId, pieceColor, gridSquareArray) {
     );
     let squareContent = currentSquare.pieceColor;
     if (squareContent != "blank" && squareContent == pieceColor)
-      return legalMoves;
-    legalMoves.push(currentSquareId);
+      return legalSquares;
+    legalSquares.push(currentSquareId);
     if (squareContent != "blank" && squareContent != pieceColor)
-      return legalMoves;
+      return legalSquares;
     moves--;
   }
-  return legalMoves;
+  return legalSquares;
 }
 
-//check all the possibilities diagonal right.
+//Verifica todas as possibilidades na diagonal inferior direita
 function moveToDirSE(startingSquareId, pieceColor, gridSquareArray) {
   const file = startingSquareId.charAt(0);
   const rank = startingSquareId.substring(1);
   const rankNumber = parseInt(rank);
   let currentFile = file;
   let currentRank = rankNumber;
-  let legalMoves = [];
+  let legalSquares = [];
 
-  if (file == "k" || rank == 0) return legalMoves;
+  if (file == "k" || rank == 0) return legalSquares;
 
   let moves = 2;
   while (!(currentFile == "j" || currentRank == 1 || moves == 0)) {
@@ -761,16 +776,16 @@ function moveToDirSE(startingSquareId, pieceColor, gridSquareArray) {
     );
     let squareContent = currentSquare.pieceColor;
     if (squareContent != "blank" && squareContent == pieceColor)
-      return legalMoves;
-    legalMoves.push(currentSquareId);
+      return legalSquares;
+    legalSquares.push(currentSquareId);
     if (squareContent != "blank" && squareContent != pieceColor)
-      return legalMoves;
+      return legalSquares;
     moves--;
   }
-  return legalMoves;
+  return legalSquares;
 }
 
-//Chack if there is already a piece on the destination grid
+//Verifica se no quadrado de destino há uma peça
 function getPieceAtSquare(squareId, gridSquareArray) {
   let currentSquare = gridSquareArray.find(
     (element) => element.squareId === squareId
@@ -781,8 +796,8 @@ function getPieceAtSquare(squareId, gridSquareArray) {
   return { pieceColor: color, pieceType: pieceType,pieceId:pieceId};
 }
 
-// Convert numbers to text
-function intToText(i) {
+// Converte os números aos seus correspondentes de texto
+function numToText(i) {
   switch(i){
       case 0:   return "purple";
       case 1:   return "red";
