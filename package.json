@@ -1,0 +1,12 @@
+{
+  "name": "monstermayhemca2",
+  "version": "1.0.0",
+  "description": "Welcome to Monster Mayhem Game, enjoy!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Alany",
+  "license": "ISC"
+}
