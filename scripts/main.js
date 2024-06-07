@@ -191,3 +191,72 @@ function updatePlayerInfo(){
 
     else updateTurn();
 }
+//Function responsible to store the pieces on the grid
+
+function fillGridSquaresArray() {
+    const gridsquares = document.getElementsByClassName("square");
+    for (let i = 0; i < gridsquares.length; i++) {
+      let row = 11 - Math.floor(i / 12);
+      let column = String.fromCharCode(96 + (i % 12));
+      let square = gridsquares[i];
+  
+      square.id = column + row;
+      let color = "";
+      let pieceType = "";
+      let pieceId = "";
+      if (square.querySelector(".piece")) {
+        color     = square.querySelector(".piece").getAttribute("color");
+        pieceType = square.querySelector(".piece").classList[1];
+        pieceId   = square.querySelector(".piece").id;
+      } else {
+        color = "blank";
+        pieceType = "blank";
+        pieceId ="blank";
+      }
+      let arrayElement = {
+        squareId: square.id,
+        pieceColor: color,
+        pieceType: pieceType,
+        pieceId: pieceId
+      };
+      gridSquareArray.push(arrayElement);
+    }
+  }
+  
+  //
+  function updateGridSquaresArray (currentCellId, targetCellId, gridSquareArray, survivor) {
+      /*
+      survivor == 0: strikerPiece
+      survivor == 1: attackedPiece
+      survivor == -1: none
+      */
+  
+      let currentCell = gridSquareArray.find(
+          (element) => element.squareId === currentCellId
+      );
+      let targetCellElement = gridSquareArray.find(
+          (element) => element.squareId === targetCellId
+      );
+      let pieceColor = currentCell.pieceColor;
+      let pieceType = currentCell.pieceType;
+      let pieceId= currentCell.pieceId;
+  
+      // If survivor is 0, the attacker occupies the attacked square.
+      // If it's -1, both die and the target square is empty.
+      // If it's 1, the attacked survives, so no change is needed.
+      if(survivor == 0){
+        targetCellElement.pieceColor = pieceColor;
+        targetCellElement.pieceType = pieceType;
+        targetCellElement.pieceId = pieceId;
+      }
+      else if(survivor == -1){
+        targetCellElement.pieceColor = "blank";
+        targetCellElement.pieceType = "blank";
+        targetCellElement.pieceId = "blank";
+      }
+  
+      // The origin square always becomes empty after a move.
+      currentCell.pieceColor = "blank";
+      currentCell.pieceType = "blank";
+      currentCell.pieceId = "blank";
+  }
